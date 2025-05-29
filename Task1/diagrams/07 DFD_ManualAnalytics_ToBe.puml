@@ -1,0 +1,43 @@
+@startuml DFD_ManualAnalytics
+
+!includeurl https://raw.githubusercontent.com/ArmanAvanesyan/DFD-PlantUML/main/DFD_Level_1.puml
+!$LEVEL="DFD Level 1"
+
+startDfd("7. Ручная аналитика")
+
+' External Entities
+External(eReceptionist, "Ресепшн")
+External(eCashier, "Кассир")
+External(eDoctor, "Врач")
+External(eAnalyst, "Бизнес-аналитик")
+
+' Main Process
+Process("Формирование отчётов вручную")
+    SubProcess(sp71, "7.1", "Сбор данных из Excel")
+    SubProcess(sp72, "7.2", "Создание аналитических отчётов")
+
+' Data Stores
+DataStore(d1, "D1: Excel-файлы\n(журнал приёмов)")
+DataStore(d2, "D2: Excel-файлы\n(журнал оплат)")
+DataStore(d3, "D3: Excel-файлы\n(медицинские данные)")
+DataStore(d4, "D4: Jupyter/Notebook\n(отчёты, сводные таблицы)")
+
+' Data Flows
+DataFlows()
+
+    ' 7.1 — сбор данных из разных Excel-файлов
+    Flow(eReceptionist, sp71, "Выгрузка графика приёмов")
+    Flow(eCashier, sp71, "Выгрузка данных об оплатах")
+    Flow(eDoctor, sp71, "Выгрузка медицинских записей")
+
+    Flow(sp71, d1, "Сводная таблица\nпо визитам")
+    Flow(sp71, d2, "Сводная таблица\nпо платежам")
+    Flow(sp71, d3, "Файл с мед.данными")
+
+    ' 7.2 — ручная аналитика
+    Flow(eAnalyst, sp72, "Объединяет выгрузки\nв аналитическую модель")
+    Flow(sp72, d4, "Отчёты в Jupyter:\nвыручка, поток, заболевания")
+
+endDfd()
+
+@enduml

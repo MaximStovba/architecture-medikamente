@@ -1,0 +1,39 @@
+@startuml DFD_PatientRegistration
+
+!includeurl https://raw.githubusercontent.com/ArmanAvanesyan/DFD-PlantUML/main/DFD_Level_1.puml
+!$LEVEL="DFD Level 1"
+
+startDfd("1. Регистрация пациента")
+
+' External Entities
+External(ePatient, "Пациент")
+External(eReceptionist, "Ресепшн")
+
+' Process
+Process("Регистрация пациента")
+    SubProcess(sp1, "1.0", "Регистрация пациента")
+
+' Data Stores
+DataStore(d1, "D1: Журнал пациентов\n(Excel)")
+DataStore(d2, "D2: Скан-копии документов\n(Файловый сервер)")
+DataStore(d3, "D3: Расширенная анкета\n(Excel)")
+DataStore(d4, "D4: Учётные записи\n(AD/LDAP)")
+
+' Data Flows
+DataFlows()
+    Flow(ePatient, sp1, "PII:\nФИО, дата рождения,\nтелефон, e-mail")
+    Flow(ePatient, sp1, "Адресные данные:\nпрописка, проживание")
+    Flow(ePatient, sp1, "Соц. данные:\nместо работы/учёбы")
+    Flow(ePatient, sp1, "Медицинская анкета:\nхронические заболевания")
+    Flow(ePatient, sp1, "Документы:\nпаспорт, страховой полис")
+
+    Flow(eReceptionist, sp1, "Инициирует регистрацию")
+
+    Flow(sp1, d1, "Сохранение PII")
+    Flow(sp1, d2, "Скан-копии документов\n(PDF/JPG)")
+    Flow(sp1, d3, "Сохранение анкетных\nи мед. данных")
+    Flow(sp1, d4, "Создание учётной записи\nв AD/LDAP")
+
+endDfd()
+
+@enduml
