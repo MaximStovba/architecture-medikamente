@@ -1,0 +1,42 @@
+@startuml DFD_MedicalExamination
+
+!includeurl https://raw.githubusercontent.com/ArmanAvanesyan/DFD-PlantUML/main/DFD_Level_1.puml
+!$LEVEL="DFD Level 1"
+
+startDfd("3. Медицинский осмотр")
+
+' External Entities
+External(eDoctor, "Врач")
+External(ePatient, "Пациент")
+External(eLaboratory, "Лаборатория")
+
+' Main Process
+Process("Медицинский осмотр")
+    SubProcess(sp31, "3.1", "Осмотр и заключение")
+    SubProcess(sp32, "3.2", "Направление на анализы\nи получение результатов")
+
+' Data Stores
+DataStore(d1, "D1: Медицинские заключения\n(Excel)")
+DataStore(d2, "D2: Медицинская карта\n(сканы PDF/JPG)")
+DataStore(d3, "D3: Результаты анализов\n(файловый сервер)")
+
+' Data Flows
+DataFlows()
+
+    ' Подпроцесс 3.1: Осмотр и заключение
+    Flow(ePatient, sp31, "Жалобы, симптомы")
+    Flow(eDoctor, sp31, "Проводит осмотр,\nвносит данные")
+
+    Flow(sp31, d1, "Диагнозы, рекомендации,\nрезультаты осмотра (Excel)")
+    Flow(sp31, d2, "Медицинская карта\n(PDF/JPG)")
+
+    ' Подпроцесс 3.2: Анализы
+    Flow(sp31, sp32, "Направление на анализы")
+    Flow(sp32, eLaboratory, "Запрос на анализ")
+    Flow(eLaboratory, sp32, "Результаты анализов")
+    Flow(sp32, d3, "Хранение результатов\n(PDF/JPG, Excel)")
+    Flow(sp32, d2, "Привязка анализов к\nмедицинской карте")
+
+endDfd()
+
+@enduml

@@ -1,0 +1,39 @@
+@startuml DFD_AccessAdministration
+
+!includeurl https://raw.githubusercontent.com/ArmanAvanesyan/DFD-PlantUML/main/DFD_Level_1.puml
+!$LEVEL="DFD Level 1"
+
+startDfd("6. Администрирование доступа")
+
+' External Entities
+External(eAdmin, "Системный администратор")
+External(eEmployee, "Сотрудник")
+
+' Main Process
+Process("Управление доступом")
+    SubProcess(sp61, "6.1", "Создание учётных записей\nи доступов")
+    SubProcess(sp62, "6.2", "Администрирование почты")
+
+' Data Stores
+DataStore(d1, "D1: Active Directory / LDAP\n(логины, группы, хеши паролей)")
+DataStore(d2, "D2: Exchange Mail Server\n(переписка и вложения)")
+DataStore(d3, "D3: Файловый сервер\n(права на документы)")
+DataStore(d4, "D4: Логи доступа\n(системные журналы AD)")
+
+' Data Flows
+DataFlows()
+
+    ' 6.1 — Создание учётных записей
+    Flow(eAdmin, sp61, "Ввод ФИО, логина,\nгрупп, пароля\n[Хеширование паролей, MFA]\n@tag:ACCOUNT_CREDENTIALS")
+    Flow(sp61, d1, "Создание записи AD/LDAP\n[Шифрование, аудит доступа]\n@tag:ACCOUNT_CREDENTIALS")
+    Flow(sp61, d3, "Назначение прав на папки\n[Контроль доступа]\n@tag:SECURITY_CONFIG")
+    Flow(sp61, d4, "Запись событий доступа\n[Аудит, неизменяемость]\n@tag:ACCESS_LOG")
+
+    ' 6.2 — Администрирование почты
+    Flow(eAdmin, sp62, "Создаёт почтовый ящик\n[Аутентификация, контроль]\n@tag:ACCOUNT_CREDENTIALS")
+    Flow(eEmployee, sp62, "Обмен письмами, документами\n[Шифрование, защита вложений]\n@tag:INTERNAL_COMMUNICATION")
+    Flow(sp62, d2, "Хранение переписки и вложений\n[Шифрование, аудит]\n@tag:INTERNAL_COMMUNICATION")
+
+endDfd()
+
+@enduml

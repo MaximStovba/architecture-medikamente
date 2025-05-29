@@ -1,0 +1,38 @@
+@startuml DFD_InventoryManagement
+
+!includeurl https://raw.githubusercontent.com/ArmanAvanesyan/DFD-PlantUML/main/DFD_Level_1.puml
+!$LEVEL="DFD Level 1"
+
+startDfd("5. Управление складом")
+
+' External Entities
+External(eWarehouseKeeper, "Складской сотрудник")
+External(eSupplier, "Поставщик")
+
+' Main Process
+Process("Управление ТМЦ")
+    SubProcess(sp51, "5.1", "Учёт закупок")
+    SubProcess(sp52, "5.2", "Учёт остатков и перемещений")
+
+' Data Stores
+DataStore(d1, "D1: Закупки и договоры\n(файлы PDF/Excel)")
+DataStore(d2, "D2: Учёт ТМЦ\n(1С:Склад)")
+DataStore(d3, "D3: Бухгалтерский учёт\n(1С:Бухгалтерия)")
+
+' Data Flows
+DataFlows()
+
+    ' Подпроцесс 5.1 — Учёт закупок
+    Flow(eSupplier, sp51, "Договор поставки,\nцены, перечень ТМЦ")
+    Flow(eWarehouseKeeper, sp51, "Ввод закупки в систему")
+    Flow(sp51, d1, "Контракты, накладные,\nценовые документы")
+    Flow(sp51, d2, "Данные о закупке:\nпоставщик, сумма, дата")
+
+    ' Подпроцесс 5.2 — Остатки и движения
+    Flow(eWarehouseKeeper, sp52, "Операции по складу:\nприход, списание")
+    Flow(sp52, d2, "Остатки ТМЦ:\nкол-во, стоимость, движение")
+    Flow(sp52, d3, "Синхронизация с бухучётом:\nпроводки по ТМЦ")
+
+endDfd()
+
+@enduml

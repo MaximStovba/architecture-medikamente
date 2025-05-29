@@ -1,0 +1,41 @@
+@startuml DFD_PaymentProcessing
+
+!includeurl https://raw.githubusercontent.com/ArmanAvanesyan/DFD-PlantUML/main/DFD_Level_1.puml
+!$LEVEL="DFD Level 1"
+
+startDfd("4. Оплата услуг")
+
+' External Entities
+External(ePatient, "Пациент")
+External(eCashier, "Кассир")
+External(eKKM, "ККМ")
+
+' Main Process
+Process("Оплата медицинских услуг")
+    SubProcess(sp41, "4.1", "Приём оплаты")
+    SubProcess(sp42, "4.2", "Фискализация и проводка")
+
+' Data Stores
+DataStore(d1, "D1: Журнал оплат\n(Excel)")
+DataStore(d2, "D2: Бухгалтерия\n(1С:Бухгалтерия)")
+DataStore(d3, "D3: Чеки ККМ\n(файловое/архивное хранилище)")
+
+' Data Flows
+DataFlows()
+
+    ' Подпроцесс 4.1 — приём оплаты
+    Flow(ePatient, sp41, "ФИО, ID пациента,\nоплата (нал/безнал)\n[Шифрование, обфускация в аналитике]\n@tag:PII, @tag:FINANCIAL")
+    Flow(eCashier, sp41, "Ввод данных и суммы")
+    Flow(sp41, d1, "Сумма, дата, способ оплаты\n[Шифрование]\n@tag:FINANCIAL")
+
+    ' Подпроцесс 4.2 — фискализация
+    Flow(sp41, sp42, "Информация о платеже\n[Контроль целостности]\n@tag:FINANCIAL")
+    Flow(sp42, eKKM, "Передача данных в ККМ\n[Шифрование канала]\n@tag:FISCAL")
+    Flow(eKKM, sp42, "Фискальный чек,\nсерийный номер, FN\n[Шифрование, аудит]\n@tag:FISCAL")
+
+    Flow(sp42, d3, "Скан/копия чека или FN\n[Шифрование, контроль доступа]\n@tag:FISCAL")
+    Flow(sp42, d2, "Бухгалтерская проводка:\nдата, сумма, счёт-фактура\n[Шифрование, аудит доступа]\n@tag:FINANCIAL")
+
+endDfd()
+
+@enduml

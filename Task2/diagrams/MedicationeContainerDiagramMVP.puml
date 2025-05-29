@@ -1,0 +1,82 @@
+@startuml MedicationeMVPContainerDiagram
+
+top to bottom direction
+
+!include ./template/C4_Component.puml
+
+title Диаграмма контейнеров: To-Be архитектура MVP «Медикаменте»
+
+System_Boundary(med_system, "Платформа Медикаменте") {
+
+  Container(PortalClient, "Портал клиента", "React + Mobile App", "Запись на приём, личный кабинет, подтверждение визита")
+  Container(PortalReception, "Портал ресепшена", "Web UI", "Работа с записями, уведомления пациентам")
+  Container(APIService, "API Gateway", "Node.js / Express", "Общий вход в систему, маршрутизация запросов")
+  Container(AppCore, "Центральный сервис (BFF)", "NestJS", "Бизнес-логика записи, пациентов, уведомлений")
+  ContainerDb(PostgresDB, "Основная БД", "PostgreSQL", "Хранение данных пациентов, записей, мед.данных")
+  Container(MailService, "Почтовый сервис", "SMTP/API", "Рассылка уведомлений пациентам")
+  Container(FileStore, "Хранилище файлов", "S3-compatible", "PDF/JPG сканы, полисы, медкарты")
+  Container(CRM, "CRM система", "Custom module / Bitrix24", "Сегментация, история взаимодействий")
+  Container(LabAdapter, "Интеграция с лабораторией", "REST Proxy", "Контрактные вызовы к лабораторной системе")
+  Container(TaggingEngine, "Data Tagging Engine", "Python", "Тегирование и маркировка полей в базе")
+  Container(BigID, "BigID DLP/Data Intelligence", "BigID SaaS", "Обнаружение, классификация и защита чувствительных данных")
+}
+
+Person(Patient, "Пациент", "Записывается на приём, получает результаты, управляет согласиями")
+Person(Receptionist, "Сотрудник ресепшн")
+Person(Admin, "Администратор", "Настройка прав и управление доступами")
+
+Rel(Patient, PortalClient, "Записывается, подтверждает, получает данные")
+Rel(PortalClient, APIService, "Запросы через REST API")
+Rel(PortalReception, APIService, "Работа с записями и пациентами")
+Rel(APIService, AppCore, "Маршрутизация запросов")
+Rel(AppCore, PostgresDB, "Запись и чтение данных", "SQL + RBAC")
+Rel(AppCore, FileStore, "Сканы документов и карт")
+Rel(AppCore, CRM, "Синхронизация пациентов и обращений")
+Rel(AppCore, MailService, "Оповещения о приёме")
+Rel(AppCore, LabAdapter, "Отправка направления / Получение результатов")
+Rel(AppCore, TaggingEngine, "Обработка тегов доступа и политик")
+Rel(TaggingEngine, PostgresDB, "Тегирует таблицы/поля", "@tag:PII, @tag:MEDICAL, @tag:APPOINTMENT")
+Rel(Admin, TaggingEngine, "Задаёт политики обработки")
+Rel(Receptionist, PortalReception, "Видит только свои данные", "RBAC")
+Rel(PostgresDB, BigID, "Автоклассификация и защита данных", "API/Connector")
+Rel(FileStore, BigID, "Сканирование и защита файлов", "API")
+Rel(BigID, TaggingEngine, "Синхронизация меток и политик", "Metadata/Policy Sync")
+
+note right of PostgresDB
+  Хранение: шифрование at-rest
+  Политики доступа: RLS + RBAC
+  Удаление: по запросу пациента через 30 дней
+  Теги: @tag:PII, @tag:MEDICAL, @tag:APPOINTMENT
+end note
+
+note right of FileStore
+  Хранение: S3 + AES-256
+  Доступ: только через AppCore
+  Удаление: по регламенту, минимум 5 лет
+  Теги: @tag:DOCUMENT, @tag:SCAN
+end note
+
+note bottom of AppCore
+  Все API работают через HTTPS
+  Доступ контролируется по ролям и атрибутам
+  Интеграция с лабораторией фильтрует данные по patient_id
+end note
+
+note as LEGEND
+🔐 Хранение:
+- PostgreSQL: шифрование, RLS, RBAC
+- S3: AES-256, разграничение прав
+
+🧼 Удаление:
+- По запросу пациента: soft delete → физическое через 30 дней
+- Хранение документов: 5 лет по регламенту
+🔒 Передача:
+- Только HTTPS
+- Маскирование данных в API-переходниках
+🏷️ Тегирование:
+- @tag:PII — персональные данные
+- @tag:MEDICAL — медицинские записи
+- @tag:APPOINTMENT — данные о приёмах
+end note
+
+@enduml
