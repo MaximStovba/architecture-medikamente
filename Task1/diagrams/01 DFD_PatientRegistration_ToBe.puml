@@ -21,18 +21,18 @@ DataStore(d4, "D4: Учётные записи\n(AD/LDAP)")
 
 ' Data Flows
 DataFlows()
-    Flow(ePatient, sp1, "PII:\nФИО, дата рождения,\nтелефон, e-mail")
-    Flow(ePatient, sp1, "Адресные данные:\nпрописка, проживание")
-    Flow(ePatient, sp1, "Соц. данные:\nместо работы/учёбы")
-    Flow(ePatient, sp1, "Медицинская анкета:\nхронические заболевания")
-    Flow(ePatient, sp1, "Документы:\nпаспорт, страховой полис")
+    Flow(ePatient, sp1, "PII:\nФИО, дата рождения,\nтелефон, e-mail\n[Шифрование]\n@tag:PII")
+    Flow(ePatient, sp1, "Адресные данные:\nпрописка, проживание\n[Шифрование]\n@tag:ADDRESS")
+    Flow(ePatient, sp1, "Соц. данные:\nместо работы/учёбы\n[Шифрование]\n@tag:SOCIAL")
+    Flow(ePatient, sp1, "Медицинская анкета:\nхронические заболевания\n[Шифрование, обезличивание]\n@tag:MEDICAL_SENSITIVE")
+    Flow(ePatient, sp1, "Документы:\nпаспорт, страховой полис\n[Шифрование, доступ по ролям]\n@tag:DOCUMENT_SCAN")
 
     Flow(eReceptionist, sp1, "Инициирует регистрацию")
 
-    Flow(sp1, d1, "Сохранение PII")
-    Flow(sp1, d2, "Скан-копии документов\n(PDF/JPG)")
-    Flow(sp1, d3, "Сохранение анкетных\nи мед. данных")
-    Flow(sp1, d4, "Создание учётной записи\nв AD/LDAP")
+    Flow(sp1, d1, "Сохранение PII\n[Шифрование]\n@tag:PII")
+    Flow(sp1, d2, "Скан-копии документов\n(PDF/JPG)\n[Шифрование, контроль доступа]\n@tag:DOCUMENT_SCAN")
+    Flow(sp1, d3, "Анкеты и мед. данные\n[Шифрование, обезличивание]\n@tag:MEDICAL_SENSITIVE")
+    Flow(sp1, d4, "Создание учётной записи\n[Хеширование паролей, аудит]\n@tag:ACCOUNT_CREDENTIALS")
 
 endDfd()
 

@@ -26,17 +26,17 @@ DataStore(d4, "D4: Jupyter/Notebook\n(отчёты, сводные таблиц�
 DataFlows()
 
     ' 7.1 — сбор данных из разных Excel-файлов
-    Flow(eReceptionist, sp71, "Выгрузка графика приёмов")
-    Flow(eCashier, sp71, "Выгрузка данных об оплатах")
-    Flow(eDoctor, sp71, "Выгрузка медицинских записей")
+    Flow(eReceptionist, sp71, "Выгрузка графика приёмов\n[Обезличивание, маскирование]\n@tag:PII_SCHEDULE")
+    Flow(eCashier, sp71, "Выгрузка данных об оплатах\n[Обезличивание ID, контроль доступа]\n@tag:FINANCIAL")
+    Flow(eDoctor, sp71, "Выгрузка медицинских записей\n[Обезличивание, шифрование]\n@tag:MEDICAL_SENSITIVE")
 
-    Flow(sp71, d1, "Сводная таблица\nпо визитам")
-    Flow(sp71, d2, "Сводная таблица\nпо платежам")
-    Flow(sp71, d3, "Файл с мед.данными")
+    Flow(sp71, d1, "Сводная таблица по визитам\n[Обезличивание]\n@tag:AGGREGATE_DATA")
+    Flow(sp71, d2, "Сводная таблица по платежам\n[Обезличивание]\n@tag:AGGREGATE_DATA")
+    Flow(sp71, d3, "Файл с медицинскими данными\n[Шифрование, ограничение доступа]\n@tag:MEDICAL_SENSITIVE")
 
     ' 7.2 — ручная аналитика
-    Flow(eAnalyst, sp72, "Объединяет выгрузки\nв аналитическую модель")
-    Flow(sp72, d4, "Отчёты в Jupyter:\nвыручка, поток, заболевания")
+    Flow(eAnalyst, sp72, "Объединяет выгрузки\nв аналитическую модель\n[Обезличивание]\n@tag:ANALYTICS_PII")
+    Flow(sp72, d4, "Отчёты в Jupyter:\nвыручка, поток, заболевания\n[Обезличивание, аудит]\n@tag:ANALYTICS_PII")
 
 endDfd()
 

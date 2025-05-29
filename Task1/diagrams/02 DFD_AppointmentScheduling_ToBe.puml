@@ -21,16 +21,16 @@ DataStore(d3, "D3: Контактные данные\nпациентов (Excel)
 
 ' Data Flows
 DataFlows()
-    Flow(ePatient, sp21, "ФИО, дата и время\nжелаемого приёма")
-    Flow(ePatient, sp21, "Контактные данные:\nтелефон, e-mail")
-    Flow(sp21, d1, "Сохранение записи:\nФИО + дата/время приёма")
-    Flow(sp21, d3, "Сохранение контактов")
+    Flow(ePatient, sp21, "ФИО, дата и время приёма\n[Шифрование, маскирование]\n@tag:PII_SCHEDULE")
+    Flow(ePatient, sp21, "Контактные данные:\nтелефон, e-mail\n[Шифрование]\n@tag:PII")
+    Flow(sp21, d1, "Сохранение записи:\nФИО + дата/время\n[Шифрование]\n@tag:PII_SCHEDULE")
+    Flow(sp21, d3, "Контактные данные пациента\n[Шифрование, контроль доступа]\n@tag:PII")
 
     Flow(eReceptionist, sp21, "Вводит данные\nв расписание")
 
-    Flow(ePatient, sp22, "Полис или паспорт")
+    Flow(ePatient, sp22, "Полис или паспорт\n[Шифрование, защита документов]\n@tag:CONTRACT_REF")
     Flow(eReceptionist, sp22, "Оформляет контракт")
-    Flow(sp22, d2, "Скан или копия\nдоговора/полиса")
+    Flow(sp22, d2, "Скан или копия договора\n[Шифрование, контроль доступа]\n@tag:CONTRACT_DOC")
 
 endDfd()
 
